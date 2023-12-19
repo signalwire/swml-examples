@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "refer",
+        "sip_refer": {
+          "to_uri": "+14803769111@us.sip.com"
+        }
+      }
+    ]
+  }
+}
