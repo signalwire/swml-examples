@@ -1,0 +1,324 @@
+---
+# Example 1
+# Input:
+#   Say "Welcome to SignalWire", then connect to the SIP endpoint at "daniele@daniele-b31e295abd3a.sip.signalwire.com"
+version: 1.0.0
+sections:
+  main:
+    - play:
+        url: "say:Welcome to SignalWire"
+    - connect:
+        to: "sip:daniele@daniele-b31e295abd3a.sip.signalwire.com"
+
+---
+# Example 2
+# Input:
+#   <Output from Example 1>
+#   Use a natural-sounding female voice
+version: 1.0.0
+sections:
+  main:
+    - play:
+        url: "say:Welcome to SignalWire"
+        say_voice: "elevenlabs.rachel"
+    - connect:
+        to: "sip:daniele@daniele-b31e295abd3a.sip.signalwire.com"
+
+---
+# Example 3
+# Input:
+#   <Output from Example 2>
+#   Use "test@daniele-b31e295abd3a.sip.signalwire.com" as the "from" sip endpoint
+version: 1.0.0
+sections:
+  main:
+    - play:
+        url: "say:Welcome to SignalWire"
+        say_voice: "elevenlabs.rachel"
+    - connect:
+        from: "sip:test@daniele-b31e295abd3a.sip.signalwire.com"
+        to: "sip:daniele@daniele-b31e295abd3a.sip.signalwire.com"
+        
+---
+# Example 4
+# Input:
+#   Announce that the call will be recorded, start recording, and transfer to +1xxxxxxxxx.
+version: 1.0.0
+sections:
+  main:
+    - play:
+        url: "say:This call will be recorded"
+    - record_call
+    - connect:
+        to: "+1xxxxxxxxx"
+
+---
+# Example 5
+# Input:
+#   Dial +1xxxxxxxxx and +1yyyyyyyyy and connect the call to the first one that answers.
+version: 1.0.0
+sections:
+  main:
+    - connect:
+        parallel:
+          - to: "+1xxxxxxxxx"
+          - to: "+1yyyyyyyyy"
+
+---
+# Example 6
+# Input:
+#   Start by saying "Please hold while we connect you", then try connecting to +1xxxxxxxxx. If
+#   we couldn't connect, offer to leave a voicemail message. Otherwise, after the other party
+#   hangs up say "Goodbye" and end the call.
+version: 1.0.0
+sections:
+  main:
+  - play:
+    - "say:Please hold while we connect you"
+  - connect:
+      to: "+1xxxxxxxxx"
+  - cond:
+    - when: "vars.connect_result == 'connected'"
+      then:
+      - play: "say: Goodbye"
+      - hangup
+    - else:
+      - execute: voicemail
+  voicemail:
+  - play:
+    - "say:I'm sorry the person you are trying to reach is not available"
+    - "say:Please leave a message after the tone"
+  - record:
+      beep: true
+  - play: "say: Thank you. Goodbye."
+
+---
+# Example 7
+# Input:
+#   Connect to a random SIP destination among the following ones:
+#     - test-1@my-domain.com
+#     - test-2@my-domain.com
+#     - test-3@my-domain.com
+version: 1.0.0
+sections:
+  main:
+    - set:
+        choice: "${Math.floor(1+Math.random()*3)}"
+    - switch:
+        variable: choice
+        case:
+          1:
+            - set:
+                dest: "sip:test-1@my-domain.com"
+          2:
+            - set:
+                dest: "sip:test-2@my-domain.com"
+          3:
+            - set:
+                dest: "sip:test-3@my-domain.com"
+    - connect:
+        to: "${dest}"
+
+---
+# Example 8
+# Input:
+#   Greet the user by saying "Hello. How can I help you today?"
+version: 1.0.0
+sections:
+  main:
+    - play: "say:Hello. How can I help you today?"
+
+---
+# Example 9
+# Input:
+#   <Output from Example 8>
+#   After greeting the user, make a POST request to "https://example.com/status_update".
+#   The payload of the request should say "Dest number is" and then append the "to" number.
+version: 1.0.0
+sections:
+  main:
+    - play: "say:Hello. How can I help you today?"
+    - request:
+        url: https://example.com/status_update
+        method: POST
+        body:
+          payload: "Dest number is %{call.to}"
+
+---
+# Example 10
+# Input:
+#   <Output from Example 9>
+#   Let's make that a PUT request instead.
+version: 1.0.0
+sections:
+  main:
+    - play: "say:Hello. How can I help you today?"
+    - request:
+        url: https://example.com/status_update
+        method: PUT
+        body:
+          payload: "Dest number is %{call.to}"
+
+---
+# Example 11
+# Input:
+#   <Output from Example 10>
+#   Instead of the HTTP request, transfer execution to the
+#   SWML script at "https://example.com/next"
+version: 1.0.0
+sections:
+  main:
+    - play: "say:Hello. How can I help you today?"
+    - transfer:
+        dest: "https://example.com/next"
+
+---
+# Example 12
+# Input:
+#   <Output from Example 11>
+#   After saying hello, add two seconds of silence and then continue
+#   with the rest of the sentence.
+version: 1.0.0
+sections:
+  main:
+    - play:
+        - "say:Hello."
+        - "silence:2.0"
+        - "say:How can I help you today?"
+    - transfer:
+        dest: "https://example.com/next"
+
+---
+# Example 13
+# Input:
+#   Send an SMS from "+155512312345" to "+15555554321" saying "Your subscription is confirmed."
+version: 1.0.0
+sections:
+  main:
+    - send_sms:
+        from_number: "+155512312345"
+        to_number: "+15555554321"
+        body: Your subscription is confirmed.
+
+---
+# Example 14
+# Input:
+#   Ask the user to press 1 to be connected to Sales, 2 for Support.
+#   Pressing any other number should send them back to the beginning.
+version: 1.0.0
+sections:
+  main:
+    - prompt:
+        play: "say:Press 1 for Sales, 2 for Support."
+    - switch:
+        variable: prompt_value
+        case:
+          1:
+            - connect:
+                to: <sales>
+          2:
+            - connect:
+                to: <support>
+        default:
+          - transfer: main
+
+---
+# Example 15
+# Input:
+#   <Output from Example 14>
+#   Sales number is "+15550123", Support number is "+15554567"
+version: 1.0.0
+sections:
+  main:
+    - prompt:
+        play: "say:Press 1 for Sales, 2 for Support."
+    - switch:
+        variable: prompt_value
+        case:
+          1:
+            - connect:
+                to: "+15550123"
+          2:
+            - connect:
+                to: "+15554567"
+        default:
+          - transfer: main
+
+---
+# Example 16
+# Input:
+#   <Output from Example 15>
+#   Record the call before connecting to Sales or Support. 
+version: 1.0.0
+sections:
+  main:
+    - prompt:
+        play: "say:Press 1 for Sales, 2 for Support."
+    - switch:
+        variable: prompt_value
+        case:
+          1:
+            - record_call: {}
+            - connect:
+                to: "+15550123"
+          2:
+            - record_call: {}
+            - connect:
+                to: "+15554567"
+        default:
+          - transfer: main
+
+---
+# Example 17
+# Input:
+#   <Output from Example 16>
+#   Make it an mp3 recording. 
+version: 1.0.0
+sections:
+  main:
+    - prompt:
+        play: "say:Press 1 for Sales, 2 for Support."
+    - switch:
+        variable: prompt_value
+        case:
+          1:
+            - record_call:
+                format: mp3
+            - connect:
+                to: "+15550123"
+          2:
+            - record_call:
+                format: mp3
+            - connect:
+                to: "+15554567"
+        default:
+          - transfer: main
+
+---
+# Example 18
+# Input:
+#   <Output from Example 17>
+#   Right at the beginning of the call, start streaming
+#   the media to wss://example.com/tap 
+version: 1.0.0
+sections:
+  main:
+    - tap:
+        uri: wss://example.com/tap
+    - prompt:
+        play: "say:Press 1 for Sales, 2 for Support."
+    - switch:
+        variable: prompt_value
+        case:
+          1:
+            - record_call:
+                format: mp3
+            - connect:
+                to: "+15550123"
+          2:
+            - record_call:
+                format: mp3
+            - connect:
+                to: "+15554567"
+        default:
+          - transfer: main
