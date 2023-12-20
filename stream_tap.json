@@ -1,0 +1,12 @@
+// DO NOT USE until bug is fixed: https://github.com/signalwire/cloud-product/issues/8311
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "tap": {
+          "uri": "ws://2fe57828a991.ngrok.app"}
+      }
+    ]
+  }
+}

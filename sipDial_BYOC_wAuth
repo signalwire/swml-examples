@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "connect": {
+          "to": "sip:user_or_dest@DOMAIN.com?foo=bar","username": "User", "password": "Password"
+        }
+      }
+    ]
+  }
+}

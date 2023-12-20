@@ -1,0 +1,115 @@
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "record_call": {
+          "beep": false,
+          "format": "wav",
+        }
+      },
+      {
+        "cond": [
+          {
+            "then": [
+              {
+                "connect": {
+                  "from": "+",
+                  "to": "%{call.to.replace(/sip:/i,\"\").replace(/@[^]+\\.sip\\.signalwire\\.com/i,\"\")}"
+                }
+              },
+              {
+                "switch": {
+                  "case": {
+                    "connected": [
+
+                    ]
+                  },
+                  "default": [
+                    {
+                      "switch": {
+                        "case": {
+                        },
+                        "default": [
+                          "hangup"
+                        ],
+                        "variable": "connect_failed_reason"
+                      }
+                    }
+                  ],
+                  "variable": "connect_result"
+                }
+              }
+            ],
+            "when": "/\\+\\d{11,}/.test('%{call.to}')"
+          },
+          {
+            "then": [
+              {
+                "connect": {
+                  "from": "+",
+                  "to": "%{call.to.replace(/sip:/i,\"+1\").replace(/@[^]+\\.sip\\.signalwire\\.com/i,\"\")}"
+                }
+              },
+              {
+                "switch": {
+                  "case": {
+                    "connected": [
+
+                    ]
+                  },
+                  "default": [
+                    {
+                      "switch": {
+                        "case": {
+                        },
+                        "default": [
+                          "hangup"
+                        ],
+                        "variable": "connect_failed_reason"
+                      }
+                    }
+                  ],
+                  "variable": "connect_result"
+                }
+              }
+            ],
+            "when": "/\\b\\d{10}\\b/.test('%{call.to}')"
+          },
+          {
+            "else": [
+              {
+                "connect": {
+                  "from": "%{call.from}",
+                  "to": "%{call.to}"
+                }
+              },
+              {
+                "switch": {
+                  "case": {
+                    "connected": [
+
+                    ]
+                  },
+                  "default": [
+                    {
+                      "switch": {
+                        "case": {
+                        },
+                        "default": [
+                          "hangup"
+                        ],
+                        "variable": "connect_failed_reason"
+                      }
+                    }
+                  ],
+                  "variable": "connect_result"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
