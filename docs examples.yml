@@ -1,0 +1,1139 @@
+### Answer
+
+## No parameters
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "answer"
+    ]
+  }
+} 
+
+##  Implicit first parameter
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer: 60
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "answer": 60
+      }
+    ]
+  }
+}
+
+##  Named parameter
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer:
+        max_duration: 60
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "answer": {
+          "max_duration": 60
+        }
+      }
+    ]
+  }
+}
+
+
+### Connect
+
+## Dial a single phone number
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - connect:
+        from: "+15553214321"
+        to: "+15551231234"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "connect": {
+          "from": "+15553214321",
+          "to": "+15551231234"
+        }
+      }
+    ]
+  }
+}
+
+## Dial a single phone number and go to voicemail on failure
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - connect:
+        from: "+15553214321"
+        to: "+15551231234"
+        result:
+          case:
+            connected:
+              - hangup
+          default:
+            - execute: "voicemail"
+            - hangup
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "connect": {
+          "from": "+15553214321",
+          "to": "+15551231234",
+          "result": {
+            "case": {
+              "connected": [
+                "hangup"
+              ]
+            },
+            "default": [
+              {
+                "execute": "voicemail"
+              },
+              "hangup"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
+
+## Dial numbers in parallel
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - connect:
+        parallel:
+          - to: "+15551231234"
+          - to: "+15553214321"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "connect": {
+          "parallel": [
+            {
+              "to": "+15551231234"
+            },
+            {
+              "to": "+15553214321"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+## Dial SIP serially with a timeout
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - connect:
+        timeout: 20
+        serial:
+          - from: "sip:chris@example.com"
+            to: "sip:alice@example.com"
+          - to: "sip:bob@example.com"
+            codecs: PCMU
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "connect": {
+          "timeout": 20,
+          "serial": [
+            {
+              "from": "sip:chris@example.com",
+              "to": "sip:alice@example.com"
+            },
+            {
+              "to": "sip:bob@example.com",
+              "codecs": "PCMU"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+
+### Denoise
+
+## Start denoise
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - denoise: {}
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "denoise": {}
+      }
+    ]
+  }
+}
+
+
+### Hangup
+
+## No parameters
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer
+    - hangup
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "answer",
+      "hangup"
+    ]
+  }
+}
+
+## Implicit first parameter
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer
+    - hangup: "busy"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "answer",
+      {
+        "hangup": "busy"
+      }
+    ]
+  }
+}
+
+## Named parameter
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - answer
+    - hangup:
+        reason: "busy"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "answer",
+      {
+        "hangup": {
+          "reason": "busy"
+        }
+      }
+    ]
+  }
+}
+
+
+### Join_room
+
+## Joining a room
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - join_room: my_room
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "join_room": "my_room"
+      }
+    ]
+  }
+}
+
+## Join a room and retry on failure
+#Yaml
+main:
+  - label: join
+    join_room:
+      name: my_room
+      result:
+        case:
+          joined:
+            - hangup
+        default:
+          - goto:
+              label: join
+              max: 2
+  - hangup
+#Json
+{
+  "main": [
+    {
+      "label": "join",
+      "join_room": {
+        "name": "my_room",
+        "result": {
+          "case": {
+            "joined": [
+              "hangup"
+            ]
+          },
+          "default": [
+            {
+              "goto": {
+                "label": "join",
+                "max": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "hangup"
+  ]
+}
+
+
+### Play
+
+## Playing a single URL
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - play: https://example.com/file.mp3
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "play": "https://example.com/file.mp3"
+      }
+    ]
+  }
+}
+
+## Playing multiple URLs
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - play:
+        - https://example.com/file1.wav
+        - https://example.com/file2.wav
+        - say:this is something to say
+        - silence:3.0
+        - ring:10.0:us
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "play": [
+          "https://example.com/file1.wav",
+          "https://example.com/file2.wav",
+          "say:this is something to say",
+          "silence:3.0",
+          "ring:10.0:us"
+        ]
+      }
+    ]
+  }
+}
+
+## Playing multiple URLs with volume adjusted
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - play:
+        volume: 30
+        urls:
+          - https://example.com/file1.wav
+          - https://example.com/file2.wav
+          - say:this is something to say
+          - silence:3.0
+          - ring:10.0:us
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "play": {
+          "volume": 30,
+          "urls": [
+            "https://example.com/file1.wav",
+            "https://example.com/file2.wav",
+            "say:this is something to say",
+            "silence:3.0",
+            "ring:10.0:us"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+
+### Prompt
+
+## Play prompt and wait for digit press
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - label: welcome
+      prompt:
+        play: https://example.com/menu.wav
+    - switch:
+        case:
+          1:
+            - transfer: https://example.com/sales.swml
+        variable: prompt_value
+        default:
+          - play: https://example.com/bad_input.wav
+          - transfer: main
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "welcome",
+        "prompt": {
+          "play": "https://example.com/menu.wav"
+        }
+      },
+      {
+        "switch": {
+          "case": {
+            "1": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ]
+          },
+          "variable": "prompt_value",
+          "default": [
+            {
+              "play": "https://example.com/bad_input.wav"
+            },
+            {
+              "transfer": "main"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+## Play prompt and wait for digit or speech
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - label: welcome
+      prompt:
+        play: https://example.com/press_or_say_one.wav
+        speech_language: en-US
+        max_digits: 1
+        speech_hints:
+          - one
+          - two
+          - three
+          - four
+          - five
+          - six
+          - seven
+          - eight
+          - nine
+    - switch:
+        case:
+          1:
+            - transfer: https://example.com/sales.swml
+          one:
+            - transfer: https://example.com/sales.swml
+        variable: prompt_value
+        default:
+          - play: https://example.com/bad_input.wav
+          - transfer: main
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "welcome",
+        "prompt": {
+          "play": "https://example.com/press_or_say_one.wav",
+          "speech_language": "en-US",
+          "max_digits": 1,
+          "speech_hints": [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine"
+          ]
+        }
+      },
+      {
+        "switch": {
+          "case": {
+            "1": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ],
+            "one": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ]
+          },
+          "variable": "prompt_value",
+          "default": [
+            {
+              "play": "https://example.com/bad_input.wav"
+            },
+            {
+              "transfer": "main"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+## Play prompt and collect digits, then pass the data to an external action
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - prompt: https://example.com/menu.wav
+    - transfer: https://example.com/post_next_menu
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "prompt": "https://example.com/menu.wav"
+      },
+      {
+        "transfer": "https://example.com/post_next_menu"
+      }
+    ]
+  }
+}
+
+
+### Receive_fax
+
+## Receive a fax and post a result to a webhook
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - receive_fax
+    - execute: https://example.com/handle_incoming_fax
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "receive_fax",
+      {
+        "execute": "https://example.com/handle_incoming_fax"
+      }
+    ]
+  }
+}
+
+
+### Record
+
+## Record some audio and play it back
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - record:
+        end_silence_timeout: 5
+    - play: "%{record_url}"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "record": {
+          "end_silence_timeout": 5
+        }
+      },
+      {
+        "play": "%{record_url}"
+      }
+    ]
+  }
+}
+
+
+### Record_call
+
+## Start an MP3 recording of the call
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - record_call:
+        format: mp3
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "record_call": {
+          "format": "mp3"
+        }
+      }
+    ]
+  }
+}
+
+
+### Send_digits
+
+## Send digits
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - send_digits: "012345"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "send_digits": "012345"
+      }
+    ]
+  }
+}
+
+
+### Send_fax
+
+## Send a fax and post a result to a webhook
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - send_fax: https//example.com/fax_to_send.pdf
+    - execute: https://example.com/handle_outgoing_fax_result
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "send_fax": "https//example.com/fax_to_send.pdf"
+      },
+      {
+        "execute": "https://example.com/handle_outgoing_fax_result"
+      }
+    ]
+  }
+}
+
+
+### Send_sms
+
+## Send an SMS
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - send_sms:
+        tags:
+          - Custom
+          - data
+        region: us
+        from_number: "+155512312345"
+        to_number: "+15555554321"
+        body: Message Body
+        media:
+          - url1
+          - url2
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "send_sms": {
+          "tags": [
+            "Custom",
+            "data"
+          ],
+          "region": "us",
+          "from_number": "+155512312345",
+          "to_number": "+15555554321",
+          "body": "Message Body",
+          "media": [
+            "url1",
+            "url2"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+
+### SIP_refer
+
+## Send SIP REFER and post result
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - label: refer
+      sip_refer:
+        to_uri: "sip:alice@example.com"
+    - execute: https://example.com/handle_sip_refer_result
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "refer",
+        "sip_refer": {
+          "to_uri": "sip:alice@example.com"
+        }
+      },
+      {
+        "execute": "https://example.com/handle_sip_refer_result"
+      }
+    ]
+  }
+}
+
+
+
+### Stop_denoise
+
+## Stop denoise
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - stop_denoise
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "stop_denoise"
+    ]
+  }
+}
+
+
+### Stop_record_call
+
+## Stop last call recording
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - stop_record_call
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "stop_record_call"
+    ]
+  }
+}
+
+## Stop a specific call recording
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - stop_record_call: "my-recording-id"
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "stop_record_call": "my-recording-id"
+      }
+    ]
+  }
+}
+
+
+### Stop_tap
+
+## Stop the last call tap
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - stop_tap
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      "stop_tap"
+    ]
+  }
+}
+
+## Stop a specific call tap
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - stop_tap: my-tap-id
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "stop_tap": "my-tap-id"
+      }
+    ]
+  }
+}
+
+
+### Tap
+
+## Start WSS tap
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - tap:
+        uri: wss://example.com/tap
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "tap": {
+          "uri": "wss://example.com/tap"
+        }
+      }
+    ]
+  }
+}
+
+
+### Additional Prompt Examples
+
+## Play prompt and wait for digit press
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - label: welcome
+      prompt:
+        play: https://example.com/menu.wav
+    - switch:
+        case:
+          1:
+            - transfer: https://example.com/sales.swml
+        variable: prompt_value
+        default:
+          - play: https://example.com/bad_input.wav
+          - transfer: main
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "welcome",
+        "prompt": {
+          "play": "https://example.com/menu.wav"
+        }
+      },
+      {
+        "switch": {
+          "case": {
+            "1": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ]
+          },
+          "variable": "prompt_value",
+          "default": [
+            {
+              "play": "https://example.com/bad_input.wav"
+            },
+            {
+              "transfer": "main"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+## Play prompt and wait for digit or speech
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - label: welcome
+      prompt:
+        play: https://example.com/press_or_say_one.wav
+        speech_language: en-US
+        max_digits: 1
+        speech_hints:
+          - one
+          - two
+          - three
+          - four
+          - five
+          - six
+          - seven
+          - eight
+          - nine
+    - switch:
+        case:
+          1:
+            - transfer: https://example.com/sales.swml
+          one:
+            - transfer: https://example.com/sales.swml
+        variable: prompt_value
+        default:
+          - play: https://example.com/bad_input.wav
+          - transfer: main
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "label": "welcome",
+        "prompt": {
+          "play": "https://example.com/press_or_say_one.wav",
+          "speech_language": "en-US",
+          "max_digits": 1,
+          "speech_hints": [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine"
+          ]
+        }
+      },
+      {
+        "switch": {
+          "case": {
+            "1": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ],
+            "one": [
+              {
+                "transfer": "https://example.com/sales.swml"
+              }
+            ]
+          },
+          "variable": "prompt_value",
+          "default": [
+            {
+              "play": "https://example.com/bad_input.wav"
+            },
+            {
+              "transfer": "main"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+## Play prompt and collect digits, then pass the data to an external action
+#Yaml
+version: 1.0.0
+sections:
+  main:
+    - prompt: https://example.com/menu.wav
+    - transfer: https://example.com/post_next_menu
+#Json
+{
+  "version": "1.0.0",
+  "sections": {
+    "main": [
+      {
+        "prompt": "https://example.com/menu.wav"
+      },
+      {
+        "transfer": "https://example.com/post_next_menu"
+      }
+    ]
+  }
+}
+
+
+
+### Additional example for join_room
+
+#Json
+{
+  "sections": {
+    "main": [
+      {
+        "prompt": {
+          "play": "say:Hello, press 1 to join the conference or press 2 to exit.",
+          "say_language": "en-US",
+          "say_gender": "male",
+          "say_voice": "gcloud.en-US-Neural2-A",
+          "digit_timeout": 5,
+          "max_digits": 1
+        }
+      },
+      {
+        "switch": {
+          "case": {
+            "failed": [
+              {
+                "play": "say:Error while gathering input."
+              },
+              "hangup"
+            ],
+            "no_input": [
+
+            ],
+            "no_match": [
+            
+            ]
+          },
+          "default": [
+            {
+              "switch": {
+                "case": {
+                  "1": [
+                    {
+                      "join_room": "my_room"
+                    },
+                    {
+                      "switch": {
+                        "case": {
+                          "connected": [
+
+                          ]
+                        },
+                        "default": [
+                          {
+                            "switch": {
+                              "case": {
+                              },
+                              "default": [
+                                "hangup"
+                              ],
+                              "variable": "connect_failed_reason"
+                            }
+                          }
+                        ],
+                        "variable": "connect_result"
+                      }
+                    }
+                  ],
+                  "2": [
+                    "hangup"
+                  ]
+                },
+                "default": [
+
+                ],
+                "variable": "prompt_value"
+              }
+            }
+          ],
+          "variable": "prompt_result"
+        }
+      }
+    ]
+  },
+  "version": "1.0.0"
+}
